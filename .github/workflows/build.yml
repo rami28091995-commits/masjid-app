@@ -9,10 +9,24 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - uses: gradle/actions/setup-gradle@v4
-      - run: chmod +x gradlew
-      - run: ./gradlew assembleDebug
-      - uses: actions/upload-artifact@v4
+
+      - name: Unzip project
+        run: |
+          unzip -o "*.zip"
+          ls -la
+
+      - name: Find and build
+        run: |
+          # نلقاو وين راه gradlew
+          GRADLEW_PATH=$(find. -name "gradlew" -type f | head -n 1)
+          echo "Found gradlew at: $GRADLEW_PATH"
+          chmod +x $GRADLEW_PATH
+          DIR=$(dirname $GRADLEW_PATH)
+          cd $DIR
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
